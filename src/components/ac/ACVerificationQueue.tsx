@@ -415,32 +415,52 @@ export default function ACVerificationQueue({
           3. QUEUE SEGMENT TABS
       ════════════════════════════════════════════════ */}
       <View style={styles.segmentTabsContainer}>
-        {(['All', 'Groups', 'Individual', 'Corrections'] as QueueTab[]).map((tab) => {
-          const isActive = activeTab === tab;
-          let count = 0;
-          if (tab === 'All') count = AC_SUMMARY_DATA.totalPendingReviews;
-          if (tab === 'Groups') count = AC_SUMMARY_DATA.totalEventGroups;
-          if (tab === 'Individual') count = ALL_AC_STUDENT_SUBMISSIONS.length;
-          if (tab === 'Corrections') count = AC_SUMMARY_DATA.needAttentionCount;
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.segmentTabsScrollContent}
+        >
+          {[
+            {
+              key: 'Groups' as QueueTab,
+              label: 'Category Groups',
+              count: AC_SUMMARY_DATA.totalEventGroups,
+            },
+            {
+              key: 'Individual' as QueueTab,
+              label: 'Individual',
+              count: ALL_AC_STUDENT_SUBMISSIONS.length,
+            },
+            {
+              key: 'Corrections' as QueueTab,
+              label: 'Corrections',
+              count: AC_SUMMARY_DATA.needAttentionCount,
+            },
+          ].map((tab) => {
+            const isTabActive =
+              activeTab === tab.key || (activeTab === 'All' && tab.key === 'Groups');
 
-          return (
-            <TouchableOpacity
-              key={tab}
-              style={[styles.segmentTabBtn, isActive && styles.segmentTabBtnActive]}
-              activeOpacity={0.7}
-              onPress={() => setActiveTab(tab)}
-            >
-              <Text style={[styles.segmentTabLabel, isActive && styles.segmentTabLabelActive]}>
-                {tab}
-              </Text>
-              <View style={[styles.tabCountPill, isActive && styles.tabCountPillActive]}>
-                <Text style={[styles.tabCountText, isActive && styles.tabCountTextActive]}>
-                  {count}
+            return (
+              <TouchableOpacity
+                key={tab.key}
+                style={[styles.segmentTabBtn, isTabActive && styles.segmentTabBtnActive]}
+                activeOpacity={0.7}
+                onPress={() => setActiveTab(tab.key)}
+              >
+                <Text
+                  style={[styles.segmentTabLabel, isTabActive && styles.segmentTabLabelActive]}
+                >
+                  {tab.label}
                 </Text>
-              </View>
-            </TouchableOpacity>
-          );
-        })}
+                <View style={[styles.tabCountPill, isTabActive && styles.tabCountPillActive]}>
+                  <Text style={[styles.tabCountText, isTabActive && styles.tabCountTextActive]}>
+                    {tab.count}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
       </View>
 
       {/* ════════════════════════════════════════════════
@@ -881,32 +901,36 @@ const styles = StyleSheet.create({
 
   /* Segment Tabs */
   segmentTabsContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingTop: 12,
+    paddingTop: 10,
     paddingBottom: 8,
-    gap: 6,
+  },
+  segmentTabsScrollContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    gap: 8,
   },
   segmentTabBtn: {
-    flex: 1,
+    height: 40,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#FFFFFF',
-    paddingVertical: 8,
+    paddingHorizontal: 14,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#E2E8F0',
-    gap: 4,
+    gap: 6,
   },
   segmentTabBtnActive: {
     backgroundColor: '#2563EB',
     borderColor: '#2563EB',
   },
   segmentTabLabel: {
-    fontSize: 11,
+    fontSize: 12.5,
     fontWeight: '600',
     color: '#64748B',
+    textAlign: 'center',
   },
   segmentTabLabelActive: {
     color: '#FFFFFF',
@@ -914,17 +938,20 @@ const styles = StyleSheet.create({
   },
   tabCountPill: {
     backgroundColor: '#F1F5F9',
-    paddingHorizontal: 5,
-    paddingVertical: 1,
-    borderRadius: 5,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tabCountPillActive: {
     backgroundColor: 'rgba(255, 255, 255, 0.25)',
   },
   tabCountText: {
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '700',
     color: '#64748B',
+    textAlign: 'center',
   },
   tabCountTextActive: {
     color: '#FFFFFF',

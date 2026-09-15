@@ -12,6 +12,7 @@ import GoalsScreen from './src/components/GoalsScreen';
 import SideMenu from './src/components/SideMenu';
 import PlaceholderScreen from './src/components/PlaceholderScreen';
 import ProfileScreen from './src/components/ProfileScreen';
+import AboutUsScreen from './src/components/AboutUsScreen';
 import MyAchievementsScreen from './src/components/MyAchievementsScreen';
 import NptelCreditCourseScreen from './src/components/NptelCreditCourseScreen';
 import PendingVerification from './src/components/faculty/PendingVerification';
@@ -279,8 +280,10 @@ export default function App() {
     | 'collegeFacultyAchievements'
     | 'departmentStudentAchievements'
     | 'departmentFacultyAchievements'
+    | 'aboutUs'
   >('splash');
 
+  const [aboutUsPreviousScreen, setAboutUsPreviousScreen] = useState<string>('profile');
   const [menuOpen, setMenuOpen] = useState(false);
   const [userRole, setUserRole] = useState<
     'Student' | 'Proctor' | 'HOD' | 'Academic Coordinator' | 'Principal' | 'Head' | 'Dean'
@@ -677,6 +680,11 @@ export default function App() {
     }
     if (targetScreen === 'proctorTeamView') {
       setCurrentScreen('proctorTeamView');
+      return;
+    }
+    if (targetScreen === 'aboutUs') {
+      setAboutUsPreviousScreen(currentScreen);
+      setCurrentScreen('aboutUs');
       return;
     }
     if (targetScreen === 'proctorNotifications') {
@@ -1514,12 +1522,20 @@ export default function App() {
       );
     }
 
+    if (currentScreen === 'aboutUs') {
+      return (
+        <AboutUsScreen
+          onGoBack={() => setCurrentScreen((aboutUsPreviousScreen || 'profile') as any)}
+        />
+      );
+    }
+
     if (currentScreen === 'profile') {
       return (
         <ProfileScreen
           onGoBack={() => setCurrentScreen('dashboard')}
           onOpenMenu={() => setMenuOpen(true)}
-          onNavigate={(screen) => setCurrentScreen(screen as any)}
+          onNavigate={(screen) => handleNavigate(screen)}
           onLogout={() => {
             dismissAllFeedback();
             setMenuOpen(false);

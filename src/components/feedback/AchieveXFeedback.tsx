@@ -359,13 +359,23 @@ export function AchieveXFeedbackProvider({ children }: AchieveXFeedbackProviderP
           color: '#EA580C',
           iconSize: 22,
         };
-      case 'confirmation':
+      case 'confirmation': {
+        const lower = (currentOpts?.title || '').toLowerCase();
+        if (lower.includes('log out') || lower.includes('logout')) {
+          return {
+            iconName: 'log-out-outline',
+            bgColor: '#FEF2F2',
+            color: '#DC2626',
+            iconSize: 22,
+          };
+        }
         return {
           iconName: 'help',
           bgColor: '#EEF2FF',
           color: '#4F46E5',
           iconSize: 20,
         };
+      }
       case 'info':
       default:
         return {

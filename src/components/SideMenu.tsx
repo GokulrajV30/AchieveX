@@ -182,8 +182,8 @@ export default function SideMenu({
     setTimeout(() => {
       showAchieveXDialog({
         type: 'confirmation',
-        title: 'Log Out?',
-        message: "You'll need to sign in again.",
+        title: 'Log Out',
+        message: 'Are you sure you want to log out?',
         secondaryAction: {
           label: 'Cancel',
         },

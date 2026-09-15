@@ -146,8 +146,8 @@ export default function FacultyProfileScreen({
   const handleLogoutPress = () => {
     showAchieveXDialog({
       type: 'confirmation',
-      title: 'Log Out?',
-      message: "You'll need to sign in again.",
+      title: 'Log Out',
+      message: 'Are you sure you want to log out?',
       secondaryAction: {
         label: 'Cancel',
       },
@@ -494,6 +494,22 @@ export default function FacultyProfileScreen({
               <View style={styles.infoTextCol}>
                 <Text style={styles.actionCardTitle}>Workspace & responsibilities</Text>
                 <Text style={styles.actionCardSubtitle}>Manage, switch, or remove roles</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
+            </TouchableOpacity>
+
+            {/* About Us */}
+            <TouchableOpacity
+              style={styles.infoCard}
+              activeOpacity={0.75}
+              onPress={() => onNavigate('aboutUs')}
+            >
+              <View style={styles.infoIconCircle}>
+                <Ionicons name="information-circle-outline" size={18} color="#2563EB" />
+              </View>
+              <View style={styles.infoTextCol}>
+                <Text style={styles.actionCardTitle}>About Us</Text>
+                <Text style={styles.actionCardSubtitle}>About AchieveX platform</Text>
               </View>
               <Ionicons name="chevron-forward" size={16} color="#94A3B8" />
             </TouchableOpacity>

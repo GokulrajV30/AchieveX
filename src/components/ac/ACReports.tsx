@@ -30,6 +30,7 @@ import {
 } from '../../data/acWorkspaceData';
 import { INITIAL_CREDIT_RECORDS, type CreditCourseRecord } from '../../data/academicCreditsData';
 import { DEFAULT_FACULTY_USER } from '../../data/facultyWorkspaceData';
+import { showAchieveXDialog } from '../feedback/AchieveXFeedback';
 import ACBottomTab from './ACBottomTab';
 
 interface ACReportsProps {
@@ -355,19 +356,31 @@ export default function ACReports({ onOpenMenu, onNavigate }: ACReportsProps) {
         `;
       }
 
-      const { uri } = await Print.printToFileAsync({ html });
-
-      if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(uri, {
-          mimeType: 'application/pdf',
-          dialogTitle: 'Download AchieveX Report',
-          UTI: 'com.adobe.pdf',
-        });
+      if (Platform.OS === 'web') {
+        await Print.printAsync({ html });
       } else {
-        Alert.alert('Report Ready', `PDF saved at: ${uri}`);
+        const { uri } = await Print.printToFileAsync({ html });
+
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(uri, {
+            mimeType: 'application/pdf',
+            dialogTitle: 'Download AchieveX Report',
+            UTI: 'com.adobe.pdf',
+          });
+        } else {
+          await Print.printAsync({ uri });
+        }
       }
     } catch (error: any) {
-      Alert.alert('Export Failed', error.message || 'Could not export PDF report.');
+      console.error('PDF Generation Error:', error);
+      showAchieveXDialog({
+        type: 'error',
+        title: "Couldn't Generate Report",
+        message: 'Please try again.',
+        primaryAction: {
+          label: 'Got It',
+        },
+      });
     } finally {
       setIsGenerating(false);
     }
@@ -697,7 +710,7 @@ export default function ACReports({ onOpenMenu, onNavigate }: ACReportsProps) {
             >
               <Ionicons name="download-outline" size={18} color="#FFFFFF" style={{ marginRight: 6 }} />
               <Text style={styles.downloadPdfBtnText}>
-                {isGenerating ? 'Preparing Document...' : 'Download Certified PDF'}
+                {isGenerating ? 'Generating report...' : 'Download Certified PDF'}
               </Text>
             </TouchableOpacity>
           </View>

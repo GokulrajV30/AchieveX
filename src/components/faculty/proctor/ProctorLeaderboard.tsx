@@ -3,7 +3,7 @@
 // Official rankings based strictly on verified achievements for assigned students.
 // ─────────────────────────────────────────────────────────────
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   StyleSheet,
   Text,
@@ -18,8 +18,10 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import {
   PROCTOR_ASSIGNED_STUDENTS,
+  PROCTOR_STUDENT_DETAILED_ACHIEVEMENTS,
   type AssignedStudent,
 } from '../../../data/facultyWorkspaceData';
+import { CATEGORIES } from '../../../data/achievementConfig';
 import StudentBottomTab from '../../StudentBottomTab';
 
 interface ProctorLeaderboardProps {
@@ -33,12 +35,39 @@ export default function ProctorLeaderboard({
   onNavigate,
   onSelectStudent,
 }: ProctorLeaderboardProps) {
-  const [selectedSemester, setSelectedSemester] = useState('Semester 5');
-  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState('All Categories');
 
-  const rankedStudents = [...PROCTOR_ASSIGNED_STUDENTS].sort(
-    (a, b) => b.performance.points - a.performance.points
-  );
+  // Complete centralized category master: "All Categories" + every active category
+  const categoryOptions = useMemo(() => {
+    return ['All Categories', ...CATEGORIES.map((c) => c.title)];
+  }, []);
+
+  const rankedStudents = useMemo(() => {
+    if (selectedCategory === 'All Categories') {
+      return [...PROCTOR_ASSIGNED_STUDENTS].sort(
+        (a, b) => b.performance.points - a.performance.points
+      );
+    }
+    return PROCTOR_ASSIGNED_STUDENTS.map((student) => {
+      const matchingAchievements = PROCTOR_STUDENT_DETAILED_ACHIEVEMENTS.filter((ach) => {
+        if (ach.studentId !== student.id) return false;
+        if (ach.status !== 'Approved') return false;
+        const achCat = ach.category.toLowerCase().trim();
+        const selCat = selectedCategory.toLowerCase().trim();
+        return achCat === selCat || selCat.includes(achCat) || achCat.includes(selCat);
+      });
+      const catPoints = matchingAchievements.reduce((sum, a) => sum + (a.points || 0), 0);
+      const catCount = matchingAchievements.length;
+      return {
+        ...student,
+        performance: {
+          ...student.performance,
+          points: catPoints,
+          verifiedAchievements: catCount,
+        },
+      };
+    }).sort((a, b) => b.performance.points - a.performance.points);
+  }, [selectedCategory]);
 
   const top1 = rankedStudents[0];
   const top2 = rankedStudents[1];
@@ -64,27 +93,37 @@ export default function ProctorLeaderboard({
           </View>
         </View>
 
-        {/* Filter Chips Row */}
-        <View style={styles.filterChipsRow}>
-          {['Semester 5', 'All Semesters', 'Technical Only', 'Sports Only'].map((chip) => (
-            <TouchableOpacity
-              key={chip}
-              style={[
-                styles.filterChip,
-                selectedSemester === chip && styles.filterChipActive,
-              ]}
-              onPress={() => setSelectedSemester(chip)}
-            >
-              <Text
-                style={[
-                  styles.filterChipText,
-                  selectedSemester === chip && styles.filterChipTextActive,
-                ]}
-              >
-                {chip}
-              </Text>
-            </TouchableOpacity>
-          ))}
+        {/* Category Filter Chips Row (All Categories + Every Centralized Category) */}
+        <View style={styles.filterChipsContainer}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.filterChipsRow}
+          >
+            {categoryOptions.map((cat) => {
+              const isSelected = selectedCategory === cat;
+              return (
+                <TouchableOpacity
+                  key={cat}
+                  style={[
+                    styles.filterChip,
+                    isSelected && styles.filterChipActive,
+                  ]}
+                  onPress={() => setSelectedCategory(cat)}
+                  activeOpacity={0.7}
+                >
+                  <Text
+                    style={[
+                      styles.filterChipText,
+                      isSelected && styles.filterChipTextActive,
+                    ]}
+                  >
+                    {cat}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
         </View>
 
         <ScrollView
@@ -280,11 +319,14 @@ const styles = StyleSheet.create({
     color: '#64748B',
     marginTop: 1,
   },
+  filterChipsContainer: {
+    marginBottom: 8,
+  },
   filterChipsRow: {
     flexDirection: 'row',
     paddingHorizontal: 16,
     gap: 8,
-    marginBottom: 8,
+    paddingVertical: 2,
   },
   filterChip: {
     paddingHorizontal: 12,

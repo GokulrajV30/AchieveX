@@ -62,8 +62,8 @@ export default function ProfileScreen({
   const handleLogoutPress = () => {
     showAchieveXDialog({
       type: 'confirmation',
-      title: 'Log Out?',
-      message: "You'll need to sign in again.",
+      title: 'Log Out',
+      message: 'Are you sure you want to log out?',
       secondaryAction: {
         label: 'Cancel',
       },
@@ -293,6 +293,16 @@ export default function ProfileScreen({
               value="Update your account password"
               isAction
               onPress={() => setPasswordModalVisible(true)}
+            />
+
+            {/* About Us Card */}
+            <ProfileInfoCard
+              iconName="information-circle-outline"
+              iconFamily="Ionicons"
+              label="About Us"
+              value="About AchieveX platform"
+              isAction
+              onPress={() => onNavigate('aboutUs')}
             />
           </View>
 
